@@ -44,13 +44,16 @@ import tachiyomi.presentation.core.util.plus
 fun MigrationListScreen(
     items: ImmutableList<MigratingManga>,
     migrationDone: Boolean,
-    unfinishedCount: Int,
+    finishedCount: Int,
     getManga: suspend (MigratingManga.SearchResult.Result) -> Manga?,
     getChapterInfo: suspend (MigratingManga.SearchResult.Result) -> MigratingManga.ChapterInfo,
     getSourceName: (Manga) -> String,
     onMigrationItemClick: (Manga) -> Unit,
     openMigrationDialog: (Boolean) -> Unit,
     skipManga: (Long) -> Unit,
+    // KMK -->
+    cancelManga: (Long) -> Unit,
+    // KMK <--
     searchManually: (MigratingManga) -> Unit,
     migrateNow: (Long) -> Unit,
     copyNow: (Long) -> Unit,
@@ -58,9 +61,9 @@ fun MigrationListScreen(
     Scaffold(
         topBar = { scrollBehavior ->
             val titleString = stringResource(SYMR.strings.migration)
-            val title by produceState(initialValue = titleString, items, unfinishedCount, titleString) {
+            val title by produceState(initialValue = titleString, items, finishedCount, titleString) {
                 withIOContext {
-                    value = "$titleString ($unfinishedCount/${items.size})"
+                    value = "$titleString ($finishedCount/${items.size})"
                 }
             }
             AppBar(
@@ -138,6 +141,9 @@ fun MigrationListScreen(
                             .weight(0.2f),
                         result = result,
                         skipManga = { skipManga(migrationItem.manga.id) },
+                        // KMK -->
+                        cancelManga = { cancelManga(migrationItem.manga.id) },
+                        // KMK <--
                         searchManually = { searchManually(migrationItem) },
                         migrateNow = {
                             migrateNow(migrationItem.manga.id)
